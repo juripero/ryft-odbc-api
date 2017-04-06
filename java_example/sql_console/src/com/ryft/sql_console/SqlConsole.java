@@ -290,7 +290,7 @@ public class SqlConsole {
 			
 			while (rs.next()) {
 				rowCount++;
-				if(limit-- > 0) {
+				if(limit-- != 0) {
 					for (idx = 0; idx < colCount; idx++) {
 						str = "|";
 						String value = rs.getString(idx + 1);
