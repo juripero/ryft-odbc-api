@@ -55,7 +55,7 @@ returned 3 row(s) in 515 milliseconds
 [A Ryft]
 ```
 
-## JAVA Sample
+## JAVA Sample (java_example)
 
 The JAVA sample consists of a single JAVA project which also presents a CLI version of an SQL console application, however, the 
 syntax and usage of this interface differs slightly from the c++ SQL console.
