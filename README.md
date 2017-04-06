@@ -125,6 +125,8 @@ returned 3 row(s) in 491 milliseconds
 [cmd]>
 ```
 
+To exit the JAVA CLI type ```exit```.
+
 ## Release Notes
 ** 1.0.0 (April 2, 2017)
 * Initial release of the sample sources
