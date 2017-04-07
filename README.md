@@ -127,6 +127,30 @@ returned 3 row(s) in 491 milliseconds
 
 To exit the JAVA CLI type ```exit```.
 
+## CSV Export
+Both the c++ and JAVA examples support export of an SQL query to a CSV file. The ```export``` command takes two parameters, 1) any valid SQL statement, and 2) the path to the output CSV:
+```
+[cmd]> export 'select * from Passengers where name like ''-h2(Michele)''' 'd:/Rft/foo.csv'
+exported 6 row(s) in 1927 milliseconds
+[cmd]>
+```
+
+## Stored Procedure Calls
+The ODBC (and JDBC) frameworks support calling a stored procedure include both stored procedures that return result sets and those that only return a row update count. You can list available stored procedures by executing the procedures command in either CLI. Stored procedures must be 'wrapped' in curly braces:
+```
+[A Ryft] {call R1Unload('Passengers',NULL)}
+26 row(s) updated in 1560 milliseconds
+[A Ryft]
+```
+
+### R1Unload
+Currently, the only supported stored procedure is ```R1Unload```. ```R1Unload``` will export the contents of a database in the original table format (JSON or XML). ```R1Unload``` takes two parameters, 1) the name of the table to export, and 2) search criteria in RYFT API syntax. The file is stored in the /ryftone/ODBC/unload directory on the Ryft device.
+```
+[A Ryft] {call R1Unload('Passengers','( RECORD.Name CONTAINS FHS("Michelle",CS=true,DIST=2,WIDTH=0))')}
+8 row(s) updated in 1420 milliseconds
+[A Ryft]
+```
+
 ## Release Notes
 ** 1.0.0 (April 2, 2017)
 * Initial release of the sample sources
