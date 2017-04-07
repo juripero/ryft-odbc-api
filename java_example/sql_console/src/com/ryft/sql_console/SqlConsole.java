@@ -95,7 +95,7 @@ public class SqlConsole {
 			e.printStackTrace();
 			return;
 		} catch (SQLException e) {
-			e.printStackTrace();
+			__sqlErrors(e);
 			return;
 		}
 		__isConnected = true;
@@ -107,7 +107,7 @@ public class SqlConsole {
 		try {
 			__dbc.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			__sqlErrors(e);
 			return;
 		}
 		__isConnected = false;
@@ -125,7 +125,7 @@ public class SqlConsole {
 			ResultSet rs = meta.getTables(null, null,"%", null);
 			__dumpTable(rs, true);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			__sqlErrors(e);
 		}		
 	}
 	
@@ -140,7 +140,7 @@ public class SqlConsole {
 			ResultSet rs = meta.getColumns(null, null, table, null);
 			__dumpTable(rs, true);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			__sqlErrors(e);
 		}		
 	}
 
@@ -155,7 +155,7 @@ public class SqlConsole {
 			ResultSet rs = meta.getTypeInfo();
 			__dumpTable(rs, true);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			__sqlErrors(e);
 		}
 	}
 	
@@ -170,7 +170,7 @@ public class SqlConsole {
 			ResultSet rs = meta.getProcedures(null,null,null);
 			__dumpTable(rs, true);
 		} catch (SQLException e) {
-			e.printStackTrace();
+			__sqlErrors(e);
 		}		
 	}
 
@@ -198,7 +198,7 @@ public class SqlConsole {
 			}
 			stmt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			__sqlErrors(e);
 		}		
 	}
 	
@@ -220,7 +220,7 @@ public class SqlConsole {
 					(end_time - start_time) + " milliseconds\n");
 			stmt.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			__sqlErrors(e);
 		}			
 	}
 
@@ -316,13 +316,13 @@ public class SqlConsole {
 			}		
 			System.out.print("+\n");
 			
-		} catch (SQLException e1) {
-			e1.printStackTrace();
+		} catch (SQLException e) {
+			__sqlErrors(e);
 		}
 		return rowCount; 
 	}
 	
-	public int __saveAsCSV(String csvFile, ResultSet rs) {
+	private int __saveAsCSV(String csvFile, ResultSet rs) {
 		int idx;
 		int colCount = 0;
 		int rowCount = 0;
@@ -347,10 +347,20 @@ public class SqlConsole {
 			}
 			writer.close();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			__sqlErrors(e);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		return rowCount;
-	}	
+	}
+	
+	private void __sqlErrors(SQLException e) {
+        System.err.println("SQLState: " +
+            ((SQLException)e).getSQLState());
+
+        System.err.println("Error Code: " +
+            ((SQLException)e).getErrorCode());
+
+        System.err.println("Message: " + e.getMessage());
+	}
 }
