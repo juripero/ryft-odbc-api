@@ -70,7 +70,7 @@ NOTE: Both the Cliche and Ryft JDBC Client JAR files are Referenced Libraries. Y
 
 To start the JAVA CLI, open a command window by running cmd.exe. In the command you can execute the JAR by typing:
 ```
-D:\Ryft>java -jar sql-console.jar
+D:\Ryft>java -jar sql_console.jar
 ```
 
 Available commands will be listed to the CLI using ```?list```:
