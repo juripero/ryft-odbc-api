@@ -203,7 +203,7 @@ public class SqlConsole {
 	}
 	
 	@Command(description="exports result set to CSV file")
-	public void export(@Param(name="query",description="valid SQL query") String query, 
+	public void exportCSV(@Param(name="query",description="valid SQL query") String query, 
 			@Param(name="csvFile",description="fully qualified path to CSV file") String csvFile) {
 		if(!__isConnected) {
 			System.out.print("disconnected\n");
@@ -224,6 +224,28 @@ public class SqlConsole {
 		}			
 	}
 
+	@Command(description="exports result set to JSON file")
+	public void exportJSON(@Param(name="query",description="valid SQL query") String query, 
+			@Param(name="jsonFile",description="fully qualified path to JSON file") String jsonFile) {
+		if(!__isConnected) {
+			System.out.print("disconnected\n");
+			return;
+		}
+		long end_time;
+		long start_time = System.currentTimeMillis();
+		try {
+			Statement stmt = __dbc.createStatement();
+			ResultSet rs = stmt.executeQuery(query);
+			end_time = System.currentTimeMillis();
+			int rowCount = __saveAsJSON(jsonFile, rs);
+			System.out.print("exported " + rowCount + " row(s) in " + 
+					(end_time - start_time) + " milliseconds\n");
+			stmt.close();
+		} catch (SQLException e) {
+			__sqlErrors(e);
+		}			
+	}	
+	
 	@Command(description="sets row output limit to LIMIT(-1 = full)") 
 	public void limit(@Param(name="limit",description="limit of result set rows to output") int limit) {
 		__limit = limit;
@@ -334,7 +356,15 @@ public class SqlConsole {
 			FileWriter writer = null;
 			writer = new FileWriter(csvFile);
 			List<String> values = new ArrayList<String>();
-		
+
+			List<String> headers = new ArrayList<String>();
+			for(idx = 0; idx < colCount; idx++) {
+				String header;
+				header = rs.getMetaData().getColumnLabel(idx + 1);
+				headers.add(header);
+			}	
+			CSVUtils.writeLine(writer, headers);
+			
 			while(rs.next()) {
 				rowCount++;
 				values.clear();
@@ -345,6 +375,50 @@ public class SqlConsole {
 				}
 				CSVUtils.writeLine(writer, values);
 			}
+			writer.close();
+		} catch (SQLException e) {
+			__sqlErrors(e);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return rowCount;
+	}
+	
+	private int __saveAsJSON(String jsonFile, ResultSet rs) {
+		int idx;
+		int colCount = 0;
+		int rowCount = 0;
+		try {
+			colCount = rs.getMetaData().getColumnCount();
+			if(colCount == 0)
+				return 0;
+		
+			FileWriter writer = null;
+			writer = new FileWriter(jsonFile);
+			writer.append("[\r\n");
+			
+			List<String> headers = new ArrayList<String>();
+			for(idx = 0; idx < colCount; idx++) {
+				String header;
+				header = rs.getMetaData().getColumnLabel(idx + 1);
+				headers.add(header);
+			}		
+			List<String> values = new ArrayList<String>();
+			
+			while(rs.next()) {
+				if(rowCount > 0) {
+					writer.append(",\r\n");
+				}
+				rowCount++;
+				values.clear();
+				for(idx = 0; idx < colCount; idx++) {
+					String value;
+					value = rs.getString(idx+1);
+					values.add(value);
+				}
+				JSONUtils.writeRecord(writer, headers, values);
+			}
+			writer.append("\r\n]\r\n");
 			writer.close();
 		} catch (SQLException e) {
 			__sqlErrors(e);

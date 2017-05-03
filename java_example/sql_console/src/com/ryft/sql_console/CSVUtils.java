@@ -46,7 +46,7 @@ public class CSVUtils {
         writeLine(w, values, separators, ' ');
     }
 
-    private static String followCVSformat(String value) {
+    private static String followCSVformat(String value) {
 
         String result = value;
         if (result.contains("\"")) {
@@ -72,14 +72,14 @@ public class CSVUtils {
                 sb.append(separators);
             }
             if (customQuote == ' ') {
-                sb.append(followCVSformat(value));
+                sb.append(followCSVformat(value));
             } else {
-                sb.append(customQuote).append(followCVSformat(value)).append(customQuote);
+                sb.append(customQuote).append(followCSVformat(value)).append(customQuote);
             }
 
             first = false;
         }
-        sb.append("\n");
+        sb.append("\r\n");
         w.append(sb.toString());
     }
 
