@@ -88,7 +88,8 @@ d       describe        (table)
 d       datatypes       ()
 p       procedures      ()
 s       sql     (query)
-e       export  (query, csvFile)
+ec      export-CSV      (query, csvFile)
+ej      export-JSON     (query, jsonFile)
 [cmd]>
 ```
 
@@ -128,10 +129,10 @@ returned 3 row(s) in 491 milliseconds
 To exit the JAVA CLI type ```exit```.
 
 ## CSV Export
-Both the c++ and JAVA examples support export of an SQL query to a CSV file. The ```export``` command takes two parameters, 1) any valid SQL statement, and 2) the path to the output CSV:
+Both the c++ and JAVA examples support export of an SQL query to a CSV file. (The JAVA example also supports export of an SQL query to a JSON file.) The ```export``` command takes two parameters, 1) any valid SQL statement, and 2) the path to the output file:
 ```
-[cmd]> export 'select * from Passengers where name like ''-h2(Michele)''' 'd:/Rft/foo.csv'
-exported 6 row(s) in 1927 milliseconds
+[cmd]> export-CSV 'select * from Passengers where name like ''-h2(Michele)''' 'd:/Ryft/foo.csv'
+exported 6 row(s) in 959 milliseconds
 [cmd]>
 ```
 
@@ -152,5 +153,8 @@ Currently, the only supported stored procedure is ```R1Unload```. ```R1Unload```
 ```
 
 ## Release Notes
+** 1.0.1 (May 3, 2017)
+* Updated for JSON export
+
 ** 1.0.0 (April 2, 2017)
 * Initial release of the sample sources
