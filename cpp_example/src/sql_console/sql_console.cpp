@@ -81,6 +81,7 @@ string __prompt = "disconnected";
 
 #define NO_LIMIT -1
 SQLLEN __limit = -1;
+SQLLEN __columns = -1;
 
 inline bool getinput(string& prompt, string& in)
 {
@@ -102,15 +103,16 @@ void dumpTable(ODBC_ResultSet& resultSet)
 {
     string str;
     SQLULEN limit = __limit;
-    vector<SQLLEN> colDispWidth;
+    SQLULEN columns = __columns;
+    vector<SQLULEN> colDispWidth;
     int colCount = (int)resultSet.getColumnCount();
     if (!colCount)
         return;
     int idx;
     for (idx = 0; idx < colCount; idx++) {
         str = resultSet.getColumnLabel(idx + 1);
-        SQLLEN colDisp = max(resultSet.getColumnDisplaySize(idx + 1), (int)str.length());
-        colDispWidth.push_back(colDisp);
+        SQLULEN colDisp = max(resultSet.getColumnDisplaySize(idx + 1), (int)str.length());
+        colDispWidth.push_back(min(colDisp,columns));
     }
 
     Utils::tell("\n");
@@ -123,8 +125,14 @@ void dumpTable(ODBC_ResultSet& resultSet)
     for (idx = 0; idx < colCount; idx++) {
         str = "|";
         string label = resultSet.getColumnLabel(idx + 1);
-        str.append(label);
-        str.append(colDispWidth[idx] - label.length(), ' ');
+        if (label.length() > colDispWidth[idx]) {
+            str.append(label, 0, colDispWidth[idx] - 1);
+            str.append("&");
+        }
+        else {
+            str.append(label);
+            str.append(colDispWidth[idx] - label.length(), ' ');
+        }
         Utils::tell(str);
     }
     Utils::tell("|\n");
@@ -139,8 +147,14 @@ void dumpTable(ODBC_ResultSet& resultSet)
         for (idx = 0; idx < colCount; idx++) {
             str = "|";
             string value = resultSet.getString(idx + 1);
-            str.append(value);
-            str.append(colDispWidth[idx] - value.length(), ' ');
+            if (value.length() > colDispWidth[idx]) {
+                str.append(value, 0, colDispWidth[idx]-1);
+                str.append("&");
+            }
+            else {
+                str.append(value);
+                str.append(colDispWidth[idx] - value.length(), ' ');
+            }
             Utils::tell(str);
         }
         Utils::tell("|\n");
@@ -412,6 +426,35 @@ public:
     }
 };
 
+class ColumnsProc : public ICommandProcessor {
+public:
+    virtual bool canHandle(string &cmd)
+    {
+        if (cmd == ".columns") {
+            return true;
+        }
+        return false;
+    }
+
+    virtual bool process(vector<string> args)
+    {
+        if (args.size() < 2) {
+            Utils::tell(args[0] + " - invalid usage\n");
+            help();
+            return false;
+        }
+        else
+            __columns = atoi(args[1].c_str());
+        Utils::tell("current column limit set to %d\n", (int)__columns);
+        return true;
+    }
+
+    virtual void help()
+    {
+        Utils::tell("  .columns LIMIT\t-- sets column output limit to LIMIT(-1 = full)\n");
+    }
+};
+
 class ExportProc : public ICommandProcessor {
 public:
     virtual bool canHandle(string &cmd)
@@ -534,6 +577,7 @@ int main(int argc, char* argv[])
     __commandProcs.push_back(new DatatypesProc());
     __commandProcs.push_back(new ProceduresProc());
     __commandProcs.push_back(new LimitProc());
+    __commandProcs.push_back(new ColumnsProc());
     __commandProcs.push_back(new ExportProc());
     __commandProcs.push_back(new RunProc());
 

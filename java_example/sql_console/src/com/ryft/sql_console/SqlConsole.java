@@ -53,6 +53,7 @@ public class SqlConsole {
 	private boolean __isConnected = false;
 	
 	private static int __limit = -1;
+	private static int __columns = -1;
 	
 	private String prompt(String prompt) {
 		String line = null;
@@ -252,6 +253,12 @@ public class SqlConsole {
 		System.out.print("limit set to " + limit + "\n");
 	}
 	
+	@Command(description="sets column output limit to LIMIT(-1 = full)") 
+	public void columns(@Param(name="limit",description="limit of result set columns to output") int limit) {
+		__columns = limit;
+		System.out.print("column limit set to " + limit + "\n");
+	}
+	
 	public static void main(String[] args) throws IOException {
 		ShellFactory.createConsoleShell("[cmd]", "?list to list commands", new SqlConsole())
 			.commandLoop();
@@ -263,6 +270,7 @@ public class SqlConsole {
 		int colCount = 0;
 		int rowCount = 0;
 		int limit = __limit;
+		int columns = __columns;
 		ResultSetMetaData rsmd = null;
 		if(no_limit == true)
 			limit = -1;
@@ -276,7 +284,11 @@ public class SqlConsole {
 			for(idx = 0; idx < colCount; idx++) {
 				str = rsmd.getColumnLabel(idx + 1);
 				int colDisp = Math.max(rsmd.getColumnDisplaySize(idx +1), str.length());
-				colDispWidth[idx] = colDisp;
+				if(columns < 0) {
+					colDispWidth[idx] = colDisp;
+				}
+				else
+					colDispWidth[idx] = Math.min(colDisp,columns);
 			}
 			System.out.print("\n");
 		
@@ -293,10 +305,16 @@ public class SqlConsole {
 				str = "|";
 				String label = null;
 				label = rsmd.getColumnLabel(idx + 1);
-				str += label;
-				char[] repeat = new char[colDispWidth[idx] - label.length()];
-				Arrays.fill(repeat, ' ');
-				str += new String(repeat);
+				if(label.length() > colDispWidth[idx]) {
+					str += label.substring(0,colDispWidth[idx]-1);
+					str += "&";
+				}
+				else {
+					str += label;
+					char[] repeat = new char[colDispWidth[idx] - label.length()];
+					Arrays.fill(repeat, ' ');
+					str += new String(repeat);
+				}				
 				System.out.print(str);
 			}
 			System.out.print("|\n");
@@ -319,10 +337,16 @@ public class SqlConsole {
 						if(value == null) {
 							value = "NULL";
 						}
-						str += value;
-						char[] repeat = new char[colDispWidth[idx] - value.length()];
-						Arrays.fill(repeat, ' ');
-						str += new String(repeat);
+						if(value.length() > colDispWidth[idx]) {
+							str += value.substring(0,colDispWidth[idx]-1);
+							str += "&";
+						}
+						else {
+							str += value;
+							char[] repeat = new char[colDispWidth[idx] - value.length()];
+							Arrays.fill(repeat, ' ');
+							str += new String(repeat);
+						}
 						System.out.print(str);
 					}
 					System.out.print("|\n");
