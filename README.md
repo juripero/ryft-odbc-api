@@ -31,6 +31,7 @@ Supported commands:
   .datatypes            -- lists datatypes
   .procedures           -- lists procedures
   .limit LIMIT          -- sets row output limit to LIMIT(-1 = full)
+  .columns LIMIT        -- sets column output limit to LIMIT(-1 = full)  
   .export SQL FILE      -- save SQL as .csv FILE
   .run FILE             -- executes SQL from FILE
 
@@ -90,6 +91,7 @@ p       procedures      ()
 s       sql     (query)
 ec      export-CSV      (query, csvFile)
 ej      export-JSON     (query, jsonFile)
+c       columns (limit)
 [cmd]>
 ```
 
@@ -155,6 +157,7 @@ Currently, the only supported stored procedure is ```R1Unload```. ```R1Unload```
 ## Release Notes
 ** 1.0.1 (May 3, 2017)
 * Updated for JSON export
+* Add columns command to limit the width of the column output
 
 ** 1.0.0 (April 2, 2017)
 * Initial release of the sample sources
