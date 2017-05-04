@@ -130,7 +130,7 @@ returned 3 row(s) in 491 milliseconds
 
 To exit the JAVA CLI type ```exit```.
 
-## CSV Export
+## Export
 Both the c++ and JAVA examples support export of an SQL query to a CSV file. (The JAVA example also supports export of an SQL query to a JSON file.) The ```export``` command takes two parameters, 1) any valid SQL statement, and 2) the path to the output file:
 ```
 [cmd]> export-CSV 'select * from Passengers where name like ''-h2(Michele)''' 'd:/Ryft/foo.csv'
